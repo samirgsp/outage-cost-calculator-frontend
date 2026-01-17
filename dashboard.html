@@ -1,52 +1,80 @@
-<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Outage Reports</title>
-  <style>/* mesmo estilo do index.html */</style>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; }
+    h1 { color: #003366; }
+    .report-item { border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 6px; }
+    .report-item a { color: #0066cc; text-decoration: none; font-weight: bold; }
+    .report-item a:hover { text-decoration: underline; }
+    #auth-status { text-align: right; margin-bottom: 20px; }
+  </style>
 </head>
 <body>
+  <div id="auth-status"></div>
   <h1>My Saved Reports</h1>
-  <div id="reports-list">Loading...</div>
+  <div id="reports-list">Loading reports...</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    const supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function updateAuthUI() {
+      const { data: { user } } = await supabase.auth.getUser();
+      const el = document.getElementById('auth-status');
+      if (user) {
+        el.innerHTML = `
+          Logged in as ${user.email} 
+          <button onclick="logout()">Logout</button>
+        `;
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = 'index.html';
+    }
 
     async function loadReports() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        window.location.href = '/index.html';
-        return;
-      }
+      if (!user) return;
 
       const { data, error } = await supabase
         .from('outage_reports')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
+      const listEl = document.getElementById('reports-list');
       if (error) {
-        document.getElementById('reports-list').innerHTML = 'Error loading reports.';
+        listEl.innerHTML = '<p>Error loading reports.</p>';
         return;
       }
 
       if (data.length === 0) {
-        document.getElementById('reports-list').innerHTML = '<p>No reports yet.</p>';
+        listEl.innerHTML = '<p>No reports saved yet.</p>';
         return;
       }
 
       const html = data.map(r => `
-        <div style="border:1px solid #ccc; padding:15px; margin:10px 0; border-radius:6px;">
+        <div class="report-item">
           <strong>${r.capacity_mw}MW ${r.fuel} plant (${r.region})</strong><br>
           Duration: ${r.duration_h}h | Loss: €${r.loss_eur.toLocaleString()}
           <br>
-          <a href="report.html?id=${r.id}">View Report</a>
+          <a href="report.html?id=${r.id}">View Full Report</a>
         </div>
       `).join('');
-      document.getElementById('reports-list').innerHTML = html;
+      listEl.innerHTML = html;
     }
 
+    updateAuthUI();
     loadReports();
   </script>
 </body>
