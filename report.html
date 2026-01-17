@@ -52,7 +52,7 @@
 
   <div style="text-align: center; margin-top: 40px;">
     <p>Unlock unlimited reports, historical tracking, and plant benchmarking:</p>
-    <!-- 🔁 Substitua este link pelo seu do Stripe -->
+    <!-- 🔁 SUBSTITUA ESTE LINK PELO SEU DO STRIPE -->
     <a href="https://buy.stripe.com/SEU_LINK_AQUI" class="upgrade-cta">
       Start 7-Day Free Trial → €29/month
     </a>
@@ -66,20 +66,18 @@
   </footer>
 
   <script>
-    // Lê os parâmetros da URL
     const urlParams = new URLSearchParams(window.location.search);
-    let loss = parseFloat(urlParams.get('loss')) || 134400;
+    
+    // Lê os parâmetros (já são números puros!)
+    const loss = parseFloat(urlParams.get('loss')) || 134400;
     const capacity = urlParams.get('capacity') || '600';
     const duration = urlParams.get('duration') || '8';
     const fuel = urlParams.get('fuel') || 'gas';
     const region = urlParams.get('region') || 'eu';
 
-    // Formata o valor com separador de milhar
+    // Atualiza a interface
     document.getElementById('loss-value').innerText = loss.toLocaleString('en-US', { minimumFractionDigits: 0 });
-
-    // Calcula equivalente em salários
-    const engineerMonths = (loss / 8000).toFixed(1);
-    document.getElementById('engineer-months').innerText = engineerMonths;
+    document.getElementById('engineer-months').innerText = (loss / 8000).toFixed(1);
     document.getElementById('duration-val').innerText = duration;
 
     // Nomes amigáveis
