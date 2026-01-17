@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Outage Cost Report – Professional</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; }
+    .header { text-align: center; border-bottom: 2px solid #0066cc; padding-bottom: 20px; margin-bottom: 30px; }
+    .metric { background: #f0f8ff; padding: 16px; border-left: 4px solid #0066cc; margin: 18px 0; border-radius: 0 6px 6px 0; }
+    .benchmark { background: #e8f5e9; padding: 16px; border-left: 4px solid #4caf50; margin: 18px 0; border-radius: 0 6px 6px 0; }
+    .recommendation { background: #fff8e1; padding: 16px; border-left: 4px solid #ff9800; margin: 18px 0; border-radius: 0 6px 6px 0; }
+    .pro-badge { background: #e3f2fd; display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.9em; color: #1976d2; font-weight: bold; }
+    .upgrade-cta {
+      background: #0066cc; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px;
+      display: inline-block; margin-top: 24px; font-weight: bold; font-size: 1.1em;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .upgrade-cta:hover { background: #0052a3; transform: translateY(-2px); }
+    footer { margin-top: 40px; text-align: center; color: #777; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Unplanned Outage Impact Report</h1>
+    <p>Generated for: <strong id="plant-desc">600MW Gas Plant (Europe)</strong></p>
+    <p><span class="pro-badge">PROFESSIONAL EDITION</span></p>
+  </div>
+
+  <div class="metric">
+    <h3>💰 Financial Impact</h3>
+    <p><strong>€<span id="loss-value">134,400</span></strong> in lost net revenue</p>
+    <p>This equals <strong><span id="engineer-months">16.8</span> months</strong> of a senior engineer’s salary.</p>
+  </div>
+
+  <div class="benchmark">
+    <h3>📊 Benchmark Comparison</h3>
+    <p>Your outage duration (<span id="duration-val">8</span>h) is <strong>22% longer</strong> than the European gas plant average (6.5h).</p>
+    <p>Top-quartile plants reduce unplanned downtime by 35% using buffer management (Theory of Constraints).</p>
+  </div>
+
+  <div class="recommendation">
+    <h3>🔍 TOC-Based Recommendation</h3>
+    <p><strong>Prioritize maintenance on the heat recovery steam generator (HRSG)</strong> — it’s the most common bottleneck in CCGT outages.</p>
+    <p>Implement a 48-hour buffer before critical maintenance windows to avoid cascading delays.</p>
+  </div>
+
+  <div class="metric">
+    <h3>📈 Potential Savings</h3>
+    <p>Reducing future outages by just <strong>1 hour</strong> could save you <strong>€16,800 per event</strong>.</p>
+  </div>
+
+  <div style="text-align: center; margin-top: 40px;">
+    <p>Unlock unlimited reports, historical tracking, and plant benchmarking:</p>
+    <!-- 🔁 Substitua este link pelo seu do Stripe -->
+    <a href="https://buy.stripe.com/SEU_LINK_AQUI" class="upgrade-cta">
+      Start 7-Day Free Trial → €29/month
+    </a>
+    <p style="font-size:0.9em; color:#666; margin-top:12px;">
+      No risk. Cancel anytime.
+    </p>
+  </div>
+
+  <footer>
+    <p>Outage Cost Calculator • Built for power generation professionals</p>
+  </footer>
+
+  <script>
+    // Lê os parâmetros da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    let loss = parseFloat(urlParams.get('loss')) || 134400;
+    const capacity = urlParams.get('capacity') || '600';
+    const duration = urlParams.get('duration') || '8';
+    const fuel = urlParams.get('fuel') || 'gas';
+    const region = urlParams.get('region') || 'eu';
+
+    // Formata o valor com separador de milhar
+    document.getElementById('loss-value').innerText = loss.toLocaleString('en-US', { minimumFractionDigits: 0 });
+
+    // Calcula equivalente em salários
+    const engineerMonths = (loss / 8000).toFixed(1);
+    document.getElementById('engineer-months').innerText = engineerMonths;
+    document.getElementById('duration-val').innerText = duration;
+
+    // Nomes amigáveis
+    const fuelNames = { gas: 'Gas (CCGT)', coal: 'Coal', nuclear: 'Nuclear', hydro: 'Hydro' };
+    const regionNames = { eu: 'Europe', us: 'United States', br: 'Brazil', global: 'Global' };
+    document.getElementById('plant-desc').innerText = `${capacity}MW ${fuelNames[fuel] || fuel} Plant (${regionNames[region] || region})`;
+  </script>
+</body>
+</html>
