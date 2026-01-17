@@ -56,13 +56,15 @@
     <button onclick="saveReportPrompt()" id="save-btn" style="display:none;">💾 Save This Report</button>
   </div>
 
-  <!-- CORRIGIDO: removidos os espaços extras -->
+  <!-- SDK do Supabase (sem espaços!) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    // 🔁 SUBSTITUA ESTAS CHAVES PELAS SUAS REAIS DO SUPABASE
-    const SUPABASE_URL = 'https://lrghbikblionxchxwhxz.supabase.co'; // ← removidos espaços
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyZ2hiaWtibGlvbnhjaHh3aHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2MDUwNDAsImV4cCI6MjA4NDE4MTA0MH0.ZR67Wi6SMcgNIE-aYBuFIGKTzg9J6hhOr77JPh8fARk'; // ← FORMATO REAL (exemplo)
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // 🔁 Substitua pelas suas chaves reais do Supabase (Settings → API)
+    const SUPABASE_URL = 'https://lrghbikblionxchxwhxz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyZ2hiaWtibGlvbnhjaHh3aHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2MDUwNDAsImV4cCI6MjA4NDE4MTA0MH0.ZR67Wi6SMcgNIE-aYBuFIGKTzg9J6hhOr77JPh8fARk';
+
+    // ✅ Correção crítica: use um nome diferente para evitar conflito
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const MARGINS = {
       eu: { gas: 28, coal: 22, nuclear: 35, hydro: 30 },
@@ -74,7 +76,7 @@
     let currentCalculation = null;
 
     async function updateAuthUI() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await supabaseClient.auth.getUser();
       const el = document.getElementById('auth-status');
       if (user) {
         el.innerHTML = `
@@ -90,12 +92,12 @@
     }
 
     async function login() {
-      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+      const { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google' });
       if (error) console.error('Login error:', error);
     }
 
     async function logout() {
-      await supabase.auth.signOut();
+      await supabaseClient.auth.signOut();
       updateAuthUI();
     }
 
@@ -137,13 +139,13 @@
     }
 
     async function saveReportToDB(calc) {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await supabaseClient.auth.getUser();
       if (!user) {
         alert("Please log in first.");
         return;
       }
 
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('outage_reports')
         .insert([{
           user_id: user.id,
@@ -162,6 +164,7 @@
       }
     }
 
+    // Inicializa interface de autenticação
     updateAuthUI();
   </script>
 </body>
