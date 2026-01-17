@@ -22,7 +22,7 @@
     <input type="number" id="capacity" placeholder="e.g., 500" min="1" value="600" required>
 
     <label>Outage Duration (hours)</label>
-    <input type="number" id="duration" placeholder="e.g., 8" min="0.1" value="8" step="any" required>
+    <input type="number" id="duration" placeholder="e.g., 8" min="0.1" value="8" required>
 
     <label>Fuel Type</label>
     <select id="fuel">
@@ -50,51 +50,43 @@
   </div>
 
   <script>
+    // Margens usadas para recálculo local (iguais ao backend)
+    const MARGINS = {
+      eu: { gas: 28, coal: 22, nuclear: 35, hydro: 30 },
+      us: { gas: 25, coal: 20, nuclear: 32, hydro: 28 },
+      br: { gas: 18, coal: 15, nuclear: 25, hydro: 22 },
+      global: { gas: 25, coal: 20, nuclear: 30, hydro: 25 }
+    };
+
     document.getElementById('outage-form').onsubmit = async (e) => {
       e.preventDefault();
       
-      // 🔁 AFTER DEPLOYING YOUR BACKEND, REPLACE THIS URL
-      const API_URL = "https://outage-cost-calculator-api.onrender.com/calculate";
-
-      const data = {
-        capacity_mw: parseFloat(document.getElementById('capacity').value),
-        duration_h: parseFloat(document.getElementById('duration').value),
-        fuel: document.getElementById('fuel').value,
-        region: document.getElementById('region').value
-      };
-
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(data)
-        });
-        if (!res.ok) throw new Error("API error");
-        const r = await res.json();
-        document.getElementById('loss-amount').innerText = `€${r.loss_eur.toLocaleString()}`;
-        document.getElementById('equivalent').innerText = `${r.equivalent_engineers_months} months of senior engineer salary`;
-        document.getElementById('result').style.display = 'block';
-      } catch (err) {
-        alert("Failed to calculate. Please try again.");
-        console.error(err);
-      }
-    };
-    function viewReport() {
-      // Extrai os valores atuais do formulário e do resultado
-      const lossText = document.getElementById('loss-amount').innerText;
-      const loss = lossText.replace(/[^0-9.,]/g, '').replace(',', '.'); // lida com vírgulas
-      
-      const capacity = document.getElementById('capacity').value;
-      const duration = document.getElementById('duration').value;
+      const capacity = parseFloat(document.getElementById('capacity').value);
+      const duration = parseFloat(document.getElementById('duration').value);
       const fuel = document.getElementById('fuel').value;
       const region = document.getElementById('region').value;
-    
-      // Monta a URL com parâmetros
-      const url = `report.html?loss=${loss}&capacity=${capacity}&duration=${duration}&fuel=${fuel}&region=${region}`;
-      
-      // Redireciona
-      window.location.href = url;
+
+      const margin = MARGINS[region]?.[fuel] || 25;
+      const loss = capacity * duration * margin;
+      const equivalent = (loss / 8000).toFixed(1);
+
+      document.getElementById('loss-amount').innerText = `€${loss.toLocaleString('en-US', { minimumFractionDigits: 0 })}`;
+      document.getElementById('equivalent').innerText = `${equivalent} months of senior engineer salary`;
+      document.getElementById('result').style.display = 'block';
+
+      // Armazena globalmente para uso no relatório
+      window.currentCalculation = { capacity, duration, fuel, region, loss };
     };
+
+    function viewReport() {
+      if (!window.currentCalculation) {
+        alert("Please calculate first.");
+        return;
+      }
+      const { capacity, duration, fuel, region, loss } = window.currentCalculation;
+      const url = `report.html?loss=${loss}&capacity=${capacity}&duration=${duration}&fuel=${fuel}&region=${region}`;
+      window.location.href = url;
+    }
   </script>
 </body>
 </html>
