@@ -46,7 +46,7 @@
   <div id="result">
     <h2>Your outage cost: <span id="loss-amount"></span></h2>
     <p>This equals <strong><span id="equivalent"></span></strong> in lost net revenue.</p>
-    <button onclick="window.location.href='mailto:?subject=Outage%20Cost%20Report&body=Here%20is%20my%20outage%20cost%20estimate:%20' + encodeURIComponent(document.getElementById('loss-amount').innerText)">Email This Report</button>
+    <button onclick="viewReport()">📄 View Professional Report</button>
   </div>
 
   <script>
@@ -78,6 +78,22 @@
         alert("Failed to calculate. Please try again.");
         console.error(err);
       }
+    };
+    function viewReport() {
+      // Extrai os valores atuais do formulário e do resultado
+      const lossText = document.getElementById('loss-amount').innerText;
+      const loss = lossText.replace(/[^0-9.,]/g, '').replace(',', '.'); // lida com vírgulas
+      
+      const capacity = document.getElementById('capacity').value;
+      const duration = document.getElementById('duration').value;
+      const fuel = document.getElementById('fuel').value;
+      const region = document.getElementById('region').value;
+    
+      // Monta a URL com parâmetros
+      const url = `report.html?loss=${loss}&capacity=${capacity}&duration=${duration}&fuel=${fuel}&region=${region}`;
+      
+      // Redireciona
+      window.location.href = url;
     };
   </script>
 </body>
