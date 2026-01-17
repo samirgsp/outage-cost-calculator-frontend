@@ -52,12 +52,12 @@
 
   <div style="text-align: center; margin-top: 40px;">
     <p>Unlock unlimited reports, historical tracking, and plant benchmarking:</p>
-    <!-- 🔁 SUBSTITUA ESTE LINK PELO SEU DO STRIPE -->
+    <!-- 🔁 Substitua pelo seu link do Stripe -->
     <a href="https://buy.stripe.com/SEU_LINK_AQUI" class="upgrade-cta">
-      Start 7-Day Free Trial → €29/month
+      🔒 Save & Export Reports – Start Free Trial
     </a>
     <p style="font-size:0.9em; color:#666; margin-top:12px;">
-      No risk. Cancel anytime.
+      7-day free trial • Cancel anytime
     </p>
   </div>
 
@@ -66,57 +66,29 @@
   </footer>
 
   <script>
-    // Dentro do <script>, no início
     const urlParams = new URLSearchParams(window.location.search);
     const reportId = urlParams.get('id');
-    
+
     if (reportId) {
-      // Carregar do Supabase
-      loadReportFromDB(reportId);
+      // Carregar do banco (implementação futura)
+      document.getElementById('loss-value').innerText = 'Loading...';
+      // Aqui você integraria com Supabase (opcional para v1)
     } else {
-      // Usar parâmetros da URL (MVP)
-      renderReportFromParams();
-    }
-    
-    async function loadReportFromDB(id) {
-      const supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
-      const { data, error } = await supabase
-        .from('outage_reports')
-        .select('*')
-        .eq('id', id)
-        .single();
-    
-      if (error || !data) {
-        alert("Report not found.");
-        return;
-      }
-    
-      // Renderiza com dados do banco
-      renderReport({
-        loss: data.loss_eur,
-        capacity: data.capacity_mw,
-        duration: data.duration_h,
-        fuel: data.fuel,
-        region: data.region
-      });
-    }
-    
-    // Lê os parâmetros (já são números puros!)
-    const loss = parseFloat(urlParams.get('loss')) || 134400;
-    const capacity = urlParams.get('capacity') || '600';
-    const duration = urlParams.get('duration') || '8';
-    const fuel = urlParams.get('fuel') || 'gas';
-    const region = urlParams.get('region') || 'eu';
+      // Usar parâmetros da URL
+      const loss = parseFloat(urlParams.get('loss')) || 134400;
+      const capacity = urlParams.get('capacity') || '600';
+      const duration = urlParams.get('duration') || '8';
+      const fuel = urlParams.get('fuel') || 'gas';
+      const region = urlParams.get('region') || 'eu';
 
-    // Atualiza a interface
-    document.getElementById('loss-value').innerText = loss.toLocaleString('en-US', { minimumFractionDigits: 0 });
-    document.getElementById('engineer-months').innerText = (loss / 8000).toFixed(1);
-    document.getElementById('duration-val').innerText = duration;
+      document.getElementById('loss-value').innerText = loss.toLocaleString('en-US', { minimumFractionDigits: 0 });
+      document.getElementById('engineer-months').innerText = (loss / 8000).toFixed(1);
+      document.getElementById('duration-val').innerText = duration;
 
-    // Nomes amigáveis
-    const fuelNames = { gas: 'Gas (CCGT)', coal: 'Coal', nuclear: 'Nuclear', hydro: 'Hydro' };
-    const regionNames = { eu: 'Europe', us: 'United States', br: 'Brazil', global: 'Global' };
-    document.getElementById('plant-desc').innerText = `${capacity}MW ${fuelNames[fuel] || fuel} Plant (${regionNames[region] || region})`;
+      const fuelNames = { gas: 'Gas (CCGT)', coal: 'Coal', nuclear: 'Nuclear', hydro: 'Hydro' };
+      const regionNames = { eu: 'Europe', us: 'United States', br: 'Brazil', global: 'Global' };
+      document.getElementById('plant-desc').innerText = `${capacity}MW ${fuelNames[fuel] || fuel} Plant (${regionNames[region] || region})`;
+    }
   </script>
 </body>
 </html>
