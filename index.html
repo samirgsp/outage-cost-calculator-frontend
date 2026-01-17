@@ -1,3 +1,6 @@
+<div id="auth-status" style="text-align:right; margin-bottom:20px;">
+  <!-- Preenchido por JS -->
+</div>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +16,40 @@
     h1 { color: #003366; }
   </style>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+  const supabase = supabase.createClient(
+    'https://lrghbikblionxchxwhxz.supabase.co',
+    'sb_publishable__TyE_TvZEXQFJtWZ-L9uxA_jYwEpFu8'
+  );
+
+  // Atualiza status de login
+  async function updateAuthUI() {
+    const { data: { user } } = await supabase.auth.getUser();
+    const el = document.getElementById('auth-status');
+    if (user) {
+      el.innerHTML = `
+        Logged in as ${user.email} 
+        <button onclick="logout()">Logout</button>
+        <button onclick="window.location='/dashboard.html'">My Reports</button>
+      `;
+    } else {
+      el.innerHTML = `<button onclick="login()">Login to Save Reports</button>`;
+    }
+  }
+
+  async function login() {
+    await supabase.auth.signInWithOAuth({ provider: 'google' });
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    updateAuthUI();
+  }
+
+  // Chama ao carregar
+  updateAuthUI();
+</script>
 <body>
   <h1>How Much Is Your Power Plant Losing to Unplanned Outages?</h1>
   <p>Get an instant estimate — no signup required.</p>
