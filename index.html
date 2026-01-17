@@ -113,6 +113,35 @@
 
       // Armazena globalmente para uso no relatório
       window.currentCalculation = { capacity, duration, fuel, region, loss };
+      // Dentro da função de cálculo
+      if (window.currentCalculation && confirm("Save this report for later?")) {
+        saveReportToDB(window.currentCalculation);
+      }
+      
+      async function saveReportToDB(calc) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          alert("Please log in first.");
+          return;
+        }
+      
+        const { error } = await supabase
+          .from('outage_reports')
+          .insert([{
+            user_id: user.id,
+            capacity_mw: calc.capacity,
+            duration_h: calc.duration,
+            fuel: calc.fuel,
+            region: calc.region,
+            loss_eur: calc.loss
+          }]);
+      
+        if (error) {
+          alert("Failed to save report.");
+        } else {
+          alert("Report saved! Go to Dashboard to view.");
+        }
+      }
     };
 
     function viewReport() {
