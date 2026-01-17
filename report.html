@@ -66,7 +66,40 @@
   </footer>
 
   <script>
+    // Dentro do <script>, no início
     const urlParams = new URLSearchParams(window.location.search);
+    const reportId = urlParams.get('id');
+    
+    if (reportId) {
+      // Carregar do Supabase
+      loadReportFromDB(reportId);
+    } else {
+      // Usar parâmetros da URL (MVP)
+      renderReportFromParams();
+    }
+    
+    async function loadReportFromDB(id) {
+      const supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
+      const { data, error } = await supabase
+        .from('outage_reports')
+        .select('*')
+        .eq('id', id)
+        .single();
+    
+      if (error || !data) {
+        alert("Report not found.");
+        return;
+      }
+    
+      // Renderiza com dados do banco
+      renderReport({
+        loss: data.loss_eur,
+        capacity: data.capacity_mw,
+        duration: data.duration_h,
+        fuel: data.fuel,
+        region: data.region
+      });
+    }
     
     // Lê os parâmetros (já são números puros!)
     const loss = parseFloat(urlParams.get('loss')) || 134400;
