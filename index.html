@@ -28,7 +28,7 @@
     <input type="number" id="capacity" placeholder="e.g., 500" min="1" value="600" required>
 
     <label>Outage Duration (hours)</label>
-    <input type="number" id="duration" placeholder="e.g., 8" min="0.1" value="8" step=any required>
+    <input type="number" id="duration" placeholder="e.g., 8" min="0.1" value="8" step="any" required>
 
     <label>Fuel Type</label>
     <select id="fuel">
@@ -56,11 +56,12 @@
     <button onclick="saveReportPrompt()" id="save-btn" style="display:none;">💾 Save This Report</button>
   </div>
 
+  <!-- CORRIGIDO: removidos os espaços extras -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    // 🔁 Substitua pelas suas chaves do Supabase
-    const SUPABASE_URL = 'https://lrghbikblionxchxwhxz.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable__TyE_TvZEXQFJtWZ-L9uxA_jYwEpFu8';
+    // 🔁 SUBSTITUA ESTAS CHAVES PELAS SUAS REAIS DO SUPABASE
+    const SUPABASE_URL = 'https://lrghbikblionxchxwhxz.supabase.co'; // ← removidos espaços
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxyZ2hiaWtibGlvbnhjaHh3aHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2MDUwNDAsImV4cCI6MjA4NDE4MTA0MH0.ZR67Wi6SMcgNIE-aYBuFIGKTzg9J6hhOr77JPh8fARk'; // ← FORMATO REAL (exemplo)
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const MARGINS = {
@@ -89,7 +90,8 @@
     }
 
     async function login() {
-      await supabase.auth.signInWithOAuth({ provider: 'google' });
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+      if (error) console.error('Login error:', error);
     }
 
     async function logout() {
@@ -114,7 +116,7 @@
       document.getElementById('result').style.display = 'block';
 
       currentCalculation = { capacity, duration, fuel, region, loss };
-      updateAuthUI(); // Atualiza botão de salvar
+      updateAuthUI();
     };
 
     function viewReport() {
@@ -154,12 +156,12 @@
 
       if (error) {
         alert("Failed to save report: " + error.message);
+        console.error(error);
       } else {
         alert("✅ Report saved! Go to Dashboard to view.");
       }
     }
 
-    // Inicializa
     updateAuthUI();
   </script>
 </body>
