@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Outage Cost Calculator for Power Plants</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; line-height: 1.6; }
+    input, select, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    button { background: #0066cc; color: white; font-weight: bold; cursor: pointer; border: none; }
+    button:hover { background: #0052a3; }
+    #result { background: #f0f8ff; padding: 20px; border-radius: 8px; margin-top: 20px; display: none; }
+    h1 { color: #003366; }
+  </style>
+</head>
+<body>
+  <h1>How Much Is Your Power Plant Losing to Unplanned Outages?</h1>
+  <p>Get an instant estimate — no signup required.</p>
+
+  <form id="outage-form">
+    <label>Plant Capacity (MW)</label>
+    <input type="number" id="capacity" placeholder="e.g., 500" min="1" value="600" required>
+
+    <label>Outage Duration (hours)</label>
+    <input type="number" id="duration" placeholder="e.g., 8" min="0.1" step="0.5" value="8" required>
+
+    <label>Fuel Type</label>
+    <select id="fuel">
+      <option value="gas">Natural Gas (CCGT)</option>
+      <option value="coal">Coal</option>
+      <option value="nuclear">Nuclear</option>
+      <option value="hydro">Hydro</option>
+    </select>
+
+    <label>Region</label>
+    <select id="region">
+      <option value="eu">Europe (ENTSO-E)</option>
+      <option value="us">United States</option>
+      <option value="br">Brazil</option>
+      <option value="global">Global Average</option>
+    </select>
+
+    <button type="submit">Calculate My Loss →</button>
+  </form>
+
+  <div id="result">
+    <h2>Your outage cost: <span id="loss-amount"></span></h2>
+    <p>This equals <strong><span id="equivalent"></span></strong> in lost net revenue.</p>
+    <button onclick="window.location.href='mailto:?subject=Outage%20Cost%20Report&body=Here%20is%20my%20outage%20cost%20estimate:%20' + encodeURIComponent(document.getElementById('loss-amount').innerText)">Email This Report</button>
+  </div>
+
+  <script>
+    document.getElementById('outage-form').onsubmit = async (e) => {
+      e.preventDefault();
+      
+      // 🔁 AFTER DEPLOYING YOUR BACKEND, REPLACE THIS URL
+      const API_URL = "https://your-outage-api.onrender.com/calculate";
+
+      const data = {
+        capacity_mw: parseFloat(document.getElementById('capacity').value),
+        duration_h: parseFloat(document.getElementById('duration').value),
+        fuel: document.getElementById('fuel').value,
+        region: document.getElementById('region').value
+      };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error("API error");
+        const r = await res.json();
+        document.getElementById('loss-amount').innerText = `€${r.loss_eur.toLocaleString()}`;
+        document.getElementById('equivalent').innerText = `${r.equivalent_engineers_months} months of senior engineer salary`;
+        document.getElementById('result').style.display = 'block';
+      } catch (err) {
+        alert("Failed to calculate. Please try again.");
+        console.error(err);
+      }
+    };
+  </script>
+</body>
+</html>
